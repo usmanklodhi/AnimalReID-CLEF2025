@@ -1,0 +1,58 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*.so
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# VSCode and IDE settings
+.vscode/
+.idea/
+
+# Environment folders
+.env/
+venv/
+ENV/
+env/
+.venv/
+
+# Python egg and build artifacts
+*.egg-info/
+dist/
+build/
+
+# Test, coverage, and mypy caches
+.pytest_cache/
+.mypy_cache/
+.coverage
+
+# OS files
+.DS_Store
+
+# Model checkpoints and outputs
+*.pth
+*.pt
+*.npz
+*.npy
+*.pkl
+*.h5
+*.onnx
+*.ckpt
+*.joblib
+
+# Training and evaluation outputs
+*.log
+*.csv
+*.png
+
+# Output and results folders
+output/
+results/
+logs/
+checkpoints/
+*.best.*
+*.best
+
+# Data (if generated or large)
+data/
