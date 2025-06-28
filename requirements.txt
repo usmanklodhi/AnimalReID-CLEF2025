@@ -6,4 +6,5 @@ tqdm
 transformers
 timm
 Pillow
-joblib 
+joblib
+pytest 
