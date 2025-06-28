@@ -1,17 +1,17 @@
 import argparse
 import torch
 from src.data.dataset import AnimalDataset
-from src.data.loader import load_metadata
 from src.models.backbones import MultiBackboneClassifier
 from src.train.train import train_model
 from src.utils.early_stopping import EarlyStopping
 import torchvision.transforms as T
 from torch.utils.data import DataLoader
-from transformers import get_scheduler
+from transformers.optimization import get_scheduler
 import timm
 import os
 import pandas as pd
 from sklearn.model_selection import train_test_split
+from typing import Tuple
 
 def main():
     parser = argparse.ArgumentParser(description='Train Animal ReID Model')
@@ -34,7 +34,7 @@ def main():
     trainable_data = metadata[metadata['identity'].notna()].copy()
     
     # Create train/val splits
-    train_data, val_data = train_test_split(
+    train_data, val_data = train_test_split(  # type: ignore
         trainable_data, 
         test_size=args.val_split, 
         random_state=args.random_state,
@@ -42,12 +42,16 @@ def main():
     )
     
     # Save splits for reference
-    train_data.to_csv(os.path.join(args.output, 'train_split.csv'), index=False)
-    val_data.to_csv(os.path.join(args.output, 'val_split.csv'), index=False)
+    train_data.to_csv(os.path.join(args.output, 'train_split.csv'), index=False)  # type: ignore
+    val_data.to_csv(os.path.join(args.output, 'val_split.csv'), index=False)  # type: ignore
 
-    # Label encoder
-    train_identities = train_data['identity'].unique()
-    label_encoder = {identity: idx for idx, identity in enumerate(sorted(train_identities))}
+    # Label encoder - use ALL unique identities from the entire dataset
+    all_identities = trainable_data['identity'].unique()  # type: ignore
+    label_encoder = {identity: idx for idx, identity in enumerate(sorted(all_identities))}
+    
+    print(f"Total unique identities: {len(label_encoder)}")
+    print(f"Training samples: {len(train_data)}")
+    print(f"Validation samples: {len(val_data)}")
 
     # Transforms
     train_transform = T.Compose([
