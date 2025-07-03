@@ -1,24 +1,11 @@
 # AnimalReID-CLEF2025
 
-A modular codebase for animal re-identification, supporting advanced strategies like model soup, ensemble evaluation, and robust data handling.
+This repository contains a modular and extensible codebase for the AnimalCLEF 2025 Challenge, focusing on species-specific animal re-identification.
 
-## Structure
-- `src/data/`: Data loading and splitting
-- `src/models/`: Model architectures, model soup, ensemble logic
-- `src/train/`: Training and validation loops
-- `requirements.txt`: Python dependencies
-- `README.md`: This file
+🧪 **Work in Progress**: This project is actively being developed as part of my Master's program in Artificial Intelligence at Friedrich-Alexander-Universität Erlangen-Nürnberg (FAU), under the supervision of **Prof. Vincent Christlein**.
 
-## Usage
-- Prepare data: see `src/data/`
-- Train models: see `src/train/`
-- Model soup and ensemble: see `src/models/`
-- All modules are importable for use in scripts or notebooks.
+## Goals
 
-## Installation
-```bash
-pip install -r requirements.txt
-```
-
-## Notebooks
-For exploration and prototyping, use the provided Jupyter notebooks. 
+- Build a robust re-identification pipeline for the AnimalCLEF 2025 dataset
+- Explore and evaluate techniques like **model soup**, **ensemble methods**, and **robust data handling**
+- Maintain clear modularity to allow experimentation and reproducibility
