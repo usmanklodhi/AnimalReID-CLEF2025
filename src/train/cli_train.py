@@ -29,9 +29,12 @@ def main():
 
     # Load metadata and create train/val splits
     metadata = pd.read_csv(args.metadata_csv)
-    
-    # Filter out rows without identity (query images)
-    trainable_data = metadata[metadata['identity'].notna()].copy()
+
+    # Filter out identities with only one sample
+    counts = trainable_data['identity'].value_counts()
+    trainable_data = trainable_data[trainable_data['identity'].isin(counts[counts > 1].index)]    
+    # # Filter out rows without identity (query images)
+    # trainable_data = metadata[metadata['identity'].notna()].copy()
     
     # Create train/val splits
     train_data, val_data = train_test_split(  # type: ignore
