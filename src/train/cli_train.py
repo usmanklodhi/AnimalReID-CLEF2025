@@ -77,7 +77,7 @@ def main():
 
     # Model
     model_names = ["resnet18"]
-    embedding_dims = [512, 512]
+    embedding_dims = [512]
     model = MultiBackboneClassifier(model_names, embedding_dims, len(label_encoder))
     model = model.to('cuda' if torch.cuda.is_available() else 'cpu')
 
