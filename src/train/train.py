@@ -37,11 +37,14 @@ def train_model(model, train_loader, test_loader, optimizer, scheduler, criterio
         with open(metrics_csv, mode='a', newline='') as file:
             writer = csv.writer(file)
             writer.writerow([epoch+1, train_loss, val_loss, val_acc, current_lr])
+        # Add logging for visibility
+        print(f"Epoch {epoch+1}/{num_epochs} | Train Loss: {train_loss:.4f} | Val Loss: {val_loss:.4f} | Val Acc: {val_acc:.4f} | LR: {current_lr:.6f}")
         if val_loss < best_val_loss and val_acc > best_val_acc:
             best_val_loss = val_loss
             best_val_acc = val_acc
             torch.save({'model_state_dict': model.state_dict(), 'label_encoder': label_encoder}, best_model_path)
         if early_stopping and early_stopping.should_stop(val_loss):
+            print(f"Early stopping triggered at epoch {epoch+1}.")
             break
     # Plotting
     plt.plot(train_losses, label="Train Loss")
