@@ -80,8 +80,8 @@ def main():
     val_loader = DataLoader(val_ds, batch_size=args.batch_size)
 
     # Model
-    model_names = ["resnet18"]
-    embedding_dims = [512]
+    model_names = ["resnet18", "efficientnet_b0"]
+    embedding_dims = [512, 1280]
     model = MultiBackboneClassifier(model_names, embedding_dims, len(label_encoder))
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     model = model.to(device)
