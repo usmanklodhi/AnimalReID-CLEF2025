@@ -21,14 +21,15 @@ def main():
     parser.add_argument('--model', type=str, default='multi', choices=['multi'])
     parser.add_argument('--epochs', type=int, default=5)
     parser.add_argument('--batch_size', type=int, default=8)
-    parser.add_argument('--output', type=str, default='output')
     parser.add_argument('--val_split', type=float, default=0.2)
     parser.add_argument('--random_state', type=int, default=42)
     args = parser.parse_args()
 
+    # Hardcode output directory
+    base_output_dir = 'output'
     # Create a unique output directory for this run
     timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
-    run_output_dir = os.path.join(args.output, f"run_{timestamp}")
+    run_output_dir = os.path.join(base_output_dir, f"run_{timestamp}")
     os.makedirs(run_output_dir, exist_ok=True)
 
     # Load metadata and create train/val splits
