@@ -12,6 +12,7 @@ import os
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from typing import Tuple
+import datetime
 
 def main():
     parser = argparse.ArgumentParser(description='Train Animal ReID Model')
@@ -25,7 +26,10 @@ def main():
     parser.add_argument('--random_state', type=int, default=42)
     args = parser.parse_args()
 
-    os.makedirs(args.output, exist_ok=True)
+    # Create a unique output directory for this run
+    timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
+    run_output_dir = os.path.join(args.output, f"run_{timestamp}")
+    os.makedirs(run_output_dir, exist_ok=True)
 
     # Load metadata and create train/val splits
     metadata = pd.read_csv(args.metadata_csv)
@@ -47,8 +51,8 @@ def main():
     )
     
     # Save splits for reference
-    train_data.to_csv(os.path.join(args.output, 'train_split.csv'), index=False)  # type: ignore
-    val_data.to_csv(os.path.join(args.output, 'val_split.csv'), index=False)  # type: ignore
+    train_data.to_csv(os.path.join(run_output_dir, 'train_split.csv'), index=False)  # type: ignore
+    val_data.to_csv(os.path.join(run_output_dir, 'val_split.csv'), index=False)  # type: ignore
 
     # Label encoder - use ALL unique identities from the entire dataset
     all_identities = trainable_data['identity'].unique()  # type: ignore
@@ -95,7 +99,7 @@ def main():
 
     train_model(
         model, train_loader, val_loader, optimizer, scheduler, criterion,
-        device, args.epochs, label_encoder, metrics_csv=os.path.join(args.output, 'metrics.csv'), early_stopping=early_stopping
+        device, args.epochs, label_encoder, run_output_dir, early_stopping=early_stopping
     )
 
 if __name__ == '__main__':
