@@ -79,7 +79,8 @@ def main():
     model_names = ["resnet18"]
     embedding_dims = [512]
     model = MultiBackboneClassifier(model_names, embedding_dims, len(label_encoder))
-    model = model.to('cuda' if torch.cuda.is_available() else 'cpu')
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    model = model.to(device)
 
     optimizer = torch.optim.AdamW(model.parameters(), lr=1e-4)
     criterion = torch.nn.CrossEntropyLoss()
@@ -94,7 +95,7 @@ def main():
 
     train_model(
         model, train_loader, val_loader, optimizer, scheduler, criterion,
-        model.device, args.epochs, label_encoder, metrics_csv=os.path.join(args.output, 'metrics.csv'), early_stopping=early_stopping
+        device, args.epochs, label_encoder, metrics_csv=os.path.join(args.output, 'metrics.csv'), early_stopping=early_stopping
     )
 
 if __name__ == '__main__':
