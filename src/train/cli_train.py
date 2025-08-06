@@ -65,12 +65,12 @@ def main():
 
     # Transforms
     train_transform = T.Compose([
-        T.RandomResizedCrop(224, scale=(0.8, 1.0)),
+        T.RandomResizedCrop(384, scale=(0.8, 1.0)),
         T.RandomHorizontalFlip(),
         T.ToTensor(),
     ])
     val_transform = T.Compose([
-        T.Resize([224, 224]),
+        T.Resize([384, 384]),
         T.ToTensor(),
     ])
 
