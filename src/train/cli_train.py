@@ -80,12 +80,8 @@ def main():
     train_loader = DataLoader(train_ds, batch_size=args.batch_size, shuffle=True)
     val_loader = DataLoader(val_ds, batch_size=args.batch_size)
 
-    model_names = [
-        "swin_large_patch4_window12_384",      # Transformer
-        "convnext_xlarge.fb_in22k_ft_in1k_384",# Modern ConvNet
-        "beit_large_patch16_384.in22k_ft_in22k_in1k" # Transformer
-    ]
-    embedding_dims = [1536, 2048, 1024]  # The correct output dims for each model
+    model_names = ["resnet18", "efficientnet_b0"]
+    embedding_dims = [512, 1280]
     model = MultiBackboneClassifier(model_names, embedding_dims, len(label_encoder))
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     model = model.to(device)
