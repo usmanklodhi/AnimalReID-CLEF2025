@@ -12,6 +12,7 @@ import os
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from typing import Tuple
+import datetime
 
 def main():
     parser = argparse.ArgumentParser(description='Train Animal ReID Model')
@@ -20,18 +21,27 @@ def main():
     parser.add_argument('--model', type=str, default='multi', choices=['multi'])
     parser.add_argument('--epochs', type=int, default=5)
     parser.add_argument('--batch_size', type=int, default=8)
-    parser.add_argument('--output', type=str, default='output')
     parser.add_argument('--val_split', type=float, default=0.2)
     parser.add_argument('--random_state', type=int, default=42)
     args = parser.parse_args()
 
-    os.makedirs(args.output, exist_ok=True)
+    # Hardcode output directory
+    base_output_dir = 'output'
+    # Create a unique output directory for this run
+    timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
+    run_output_dir = os.path.join(base_output_dir, f"run_{timestamp}")
+    os.makedirs(run_output_dir, exist_ok=True)
 
     # Load metadata and create train/val splits
     metadata = pd.read_csv(args.metadata_csv)
-    
+
     # Filter out rows without identity (query images)
     trainable_data = metadata[metadata['identity'].notna()].copy()
+
+    # Filter out identities with only one sample
+    counts = trainable_data['identity'].value_counts()
+    trainable_data = trainable_data[trainable_data['identity'].isin(counts[counts > 1].index)]    
+
     
     # Create train/val splits
     train_data, val_data = train_test_split(  # type: ignore
@@ -42,8 +52,8 @@ def main():
     )
     
     # Save splits for reference
-    train_data.to_csv(os.path.join(args.output, 'train_split.csv'), index=False)  # type: ignore
-    val_data.to_csv(os.path.join(args.output, 'val_split.csv'), index=False)  # type: ignore
+    train_data.to_csv(os.path.join(run_output_dir, 'train_split.csv'), index=False)  # type: ignore
+    val_data.to_csv(os.path.join(run_output_dir, 'val_split.csv'), index=False)  # type: ignore
 
     # Label encoder - use ALL unique identities from the entire dataset
     all_identities = trainable_data['identity'].unique()  # type: ignore
@@ -55,12 +65,12 @@ def main():
 
     # Transforms
     train_transform = T.Compose([
-        T.RandomResizedCrop(224, scale=(0.8, 1.0)),
+        T.RandomResizedCrop(384, scale=(0.8, 1.0)),
         T.RandomHorizontalFlip(),
         T.ToTensor(),
     ])
     val_transform = T.Compose([
-        T.Resize([224, 224]),
+        T.Resize([384, 384]),
         T.ToTensor(),
     ])
 
@@ -70,11 +80,11 @@ def main():
     train_loader = DataLoader(train_ds, batch_size=args.batch_size, shuffle=True)
     val_loader = DataLoader(val_ds, batch_size=args.batch_size)
 
-    # Model
-    model_names = ["resnet18", "resnet18"]
-    embedding_dims = [512, 512]
+    model_names = ["resnet18", "efficientnet_b0"]
+    embedding_dims = [512, 1280]
     model = MultiBackboneClassifier(model_names, embedding_dims, len(label_encoder))
-    model = model.to('cuda' if torch.cuda.is_available() else 'cpu')
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    model = model.to(device)
 
     optimizer = torch.optim.AdamW(model.parameters(), lr=1e-4)
     criterion = torch.nn.CrossEntropyLoss()
@@ -89,7 +99,7 @@ def main():
 
     train_model(
         model, train_loader, val_loader, optimizer, scheduler, criterion,
-        model.device, args.epochs, label_encoder, metrics_csv=os.path.join(args.output, 'metrics.csv'), early_stopping=early_stopping
+        device, args.epochs, label_encoder, run_output_dir, early_stopping=early_stopping
     )
 
 if __name__ == '__main__':
