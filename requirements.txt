@@ -7,4 +7,5 @@ transformers
 timm
 Pillow
 joblib
+numpy
 pytest 

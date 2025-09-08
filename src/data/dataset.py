@@ -27,4 +27,4 @@ class AnimalDataset(Dataset):
             image = self.transform(image)
         label_str = self.data.iloc[idx]['identity']
         label = self.label_encoder[label_str]
-        return image, label 
+        return image, label, img_path
