@@ -18,6 +18,8 @@ def test_animal_dataset(tmp_path):
     df.to_csv(csv_path, index=False)
     label_encoder = {'cat': 0}
     ds = AnimalDataset(str(csv_path), str(tmp_path), label_encoder)
-    image, label = ds[0]
+    image, label, path = ds[0]
+    assert label == 0
+    assert path == str(img_path)
     assert isinstance(image, Image.Image) or (torch.is_tensor(image) and image.shape[-1] == 3)
     assert label == 0 
