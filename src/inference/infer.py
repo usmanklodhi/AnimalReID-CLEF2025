@@ -77,11 +77,18 @@ def run_inference(model_path, model_names, embedding_dims, metadata_csv, sample_
     # Build lookup: image_id -> path
     id2path = dict(zip(meta["image_id"].astype(str), meta["path"].astype(str)))
 
-    # Load model + label encoder
-    model, le = load_model(model_path, model_names, embedding_dims, device=device)
-    if le is None or not hasattr(le, "classes_"):
-        raise ValueError("No valid label_encoder found in checkpoint.")
-    idx_to_label = {i: lab for i, lab in enumerate(le.classes_)}
+    # # Load model + label encoder
+    # model, le = load_model(model_path, model_names, embedding_dims, device=device)
+    # if le is None or not hasattr(le, "classes_"):
+    #     raise ValueError("No valid label_encoder found in checkpoint.")
+    # idx_to_label = {i: lab for i, lab in enumerate(le.classes_)}
+
+    # after loading:
+    model, classes = load_model(model_path, model_names, embedding_dims, device=device)
+    if classes is None:
+        raise ValueError("Could not recover class names from checkpoint. Save a label encoder or classes list.")
+
+    idx_to_label = {i: lab for i, lab in enumerate(classes)}
 
     # Preprocessing
     transform = T.Compose([
