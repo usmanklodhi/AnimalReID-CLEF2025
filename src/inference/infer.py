@@ -15,17 +15,42 @@ from torchvision import transforms as T
 
 # --- Loader ---
 def load_model(model_path, model_names, embedding_dims, num_classes=None, device="cpu"):
-    """Loads MultiBackboneClassifier and optionally label_encoder from checkpoint."""
-    model = MultiBackboneClassifier(model_names, embedding_dims, num_classes or 1)
+    """
+    Loads MultiBackboneClassifier with the correct num_classes inferred from the checkpoint
+    (label_encoder or classifier weight shape), then loads weights. Returns (model, label_encoder).
+    """
     ckpt = torch.load(model_path, map_location=device)
 
-    # Handle dict checkpoints
+    # Extract the saved state dict whether raw or wrapped
     state = ckpt["model_state_dict"] if isinstance(ckpt, dict) and "model_state_dict" in ckpt else ckpt
-    model.load_state_dict(state, strict=False)
-    model = model.to(device).eval()
 
-    label_encoder = ckpt.get("label_encoder", None) if isinstance(ckpt, dict) else None
-    return model, label_encoder
+    # Try to infer num_classes
+    le = None
+    if isinstance(ckpt, dict):
+        le = ckpt.get("label_encoder", None)
+
+    inferred_num_classes = None
+    if le is not None and hasattr(le, "classes_"):
+        inferred_num_classes = len(le.classes_)
+    else:
+        # Fallback: infer from classifier layer shape in the checkpoint
+        # adjust the key if your final linear layer name differs
+        for k in ("classifier.4.weight", "classifier.fc.weight", "classifier[-1].weight"):
+            if k in state:
+                inferred_num_classes = state[k].shape[0]
+                break
+
+    if num_classes is None:
+        if inferred_num_classes is None:
+            raise ValueError("num_classes not provided and cannot be inferred from checkpoint.")
+        num_classes = inferred_num_classes
+
+    # Now build the model with the correct class count
+    model = MultiBackboneClassifier(model_names, embedding_dims, num_classes)
+    model.load_state_dict(state, strict=True)  # should match now that num_classes is correct
+    model = model.to(device).eval()
+    return model, le
+
 
 # --- Single image prediction ---
 def predict(model, image_path, transform, device):
