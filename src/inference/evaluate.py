@@ -8,7 +8,7 @@ from sklearn.manifold import TSNE
 from tqdm import tqdm
 
 from src.data.loader import get_dataloader
-from src.models.backbones import get_model
+from src.models.backbones import MultiBackboneClassifier
 
 
 def get_embeddings(model, dataloader, device):
@@ -104,51 +104,3 @@ def plot_qualitative_results(query_embeddings, query_labels, query_filepaths, ga
         plt.savefig(os.path.join(save_dir, f"query_{i}.png"))
         plt.close()
     print(f"Qualitative results saved to {save_dir}")
-
-
-def main(args):
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-    # Load model
-    model = get_model(args.model_name, pretrained=False)
-    model.load_state_dict(torch.load(args.model_path))
-    model = model.to(device)
-
-    # Get dataloaders
-    # Assuming you have a function to get query and gallery dataloaders
-    # You might need to adapt this based on your `loader.py`
-    query_loader = get_dataloader(args.data_dir, batch_size=args.batch_size, split='test')
-    gallery_loader = get_dataloader(args.data_dir, batch_size=args.batch_size, split='test') # Or a separate gallery set
-
-    # Extract embeddings
-    query_embeddings, query_labels, query_filepaths = get_embeddings(model, query_loader, device)
-    gallery_embeddings, gallery_labels, gallery_filepaths = get_embeddings(model, gallery_loader, device)
-
-    # Calculate mAP
-    mean_ap = calculate_map(query_embeddings, query_labels, gallery_embeddings, gallery_labels)
-    print(f"Mean Average Precision (mAP): {mean_ap:.4f}")
-
-    # Generate t-SNE plot
-    if args.tsne:
-        plot_tsne(gallery_embeddings, gallery_labels, save_path=args.tsne_path)
-
-    # Generate qualitative results
-    if args.qualitative:
-        plot_qualitative_results(query_embeddings, query_labels, query_filepaths, gallery_embeddings, gallery_labels, gallery_filepaths, save_dir=args.qualitative_path)
-
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Evaluate a Re-ID model")
-    parser.add_argument("--model_path", type=str, required=True, help="Path to the trained model file.")
-    parser.add_argument("--data_dir", type=str, required=True, help="Path to the dataset directory.")
-    parser.add_argument("--model_name", type=str, default="resnet50", help="Name of the model architecture.")
-    parser.add_argument("--batch_size", type=int, default=32, help="Batch size for inference.")
-    
-    parser.add_argument("--tsne", action="store_true", help="Generate a t-SNE plot.")
-    parser.add_argument("--tsne_path", type=str, default="tsne.png", help="Path to save the t-SNE plot.")
-    
-    parser.add_argument("--qualitative", action="store_true", help="Generate qualitative results.")
-    parser.add_argument("--qualitative_path", type=str, default="qualitative_results", help="Directory to save qualitative results.")
-
-    args = parser.parse_args()
-    main(args)
