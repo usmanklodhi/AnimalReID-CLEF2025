@@ -1,11 +1,13 @@
 # AnimalReID-CLEF2025
 
-This repository contains a modular and extensible codebase for the AnimalCLEF 2025 Challenge, focusing on species-specific animal re-identification.
+This repository contains the implementation of my baseline for the **AnimalCLEF 2025 – Multi-species Individual Animal Identification** challenge.  
+The project introduces a **feature-fusion ensemble** combining **ResNet-18** and **EfficientNet-B0**, trained on the official dataset to perform robust, open-set animal re-identification across species.
 
-🧪 **Work in Progress**: This project is actively being developed as part of my Master's program in Artificial Intelligence at Friedrich-Alexander-Universität Erlangen-Nürnberg (FAU), under the supervision of **Prof. Vincent Christlein**.
+🐾 **Summary:**  
+- Built a modular PyTorch pipeline for feature extraction, fusion, and classification.  
+- Handled long-tailed identity distributions through stratified splits and targeted augmentations.  
+- Implemented confidence-based open-set recognition and stable training with AdamW, warmup scheduling, and early stopping.  
+- Conducted qualitative retrieval analysis to evaluate embedding structure and robustness.  
+- Developed as part of the *M.Sc. Artificial Intelligence* program at **FAU Erlangen-Nürnberg**, under **Prof. Vincent Christlein**.
 
-## Goals
-
-- Build a robust re-identification pipeline for the AnimalCLEF 2025 dataset
-- Explore and evaluate techniques like **model soup**, **ensemble methods**, and **robust data handling**
-- Maintain clear modularity to allow experimentation and reproducibility
+🔗 **Code:** [https://github.com/usmanklodhi/AnimalReID-CLEF2025](https://github.com/usmanklodhi/AnimalReID-CLEF2025)
