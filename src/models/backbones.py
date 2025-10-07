@@ -36,6 +36,10 @@ class MultiBackboneClassifier(nn.Module):
         fused = torch.cat(feats, dim=1)
         return self.classifier(fused)
 
+    def get_embedding(self, x):
+        feats = [F.normalize(backbone(x), p=2, dim=1) for backbone in self.backbones]
+        return torch.cat(feats, dim=1)
+
 class EnsembleNet(nn.Module):
     def __init__(self, num_classes):
         super().__init__()
@@ -60,4 +64,4 @@ class EnsembleNet(nn.Module):
         f2 = self.backbone2(x)
         f3 = self.backbone3(x)
         fused = torch.cat([f1, f2, f3], dim=1)
-        return self.classifier(fused) 
+        return self.classifier(fused)
